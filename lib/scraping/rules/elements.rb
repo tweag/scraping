@@ -1,5 +1,3 @@
-require 'ostruct'
-
 module Scraping
   module Rules
     class Elements
