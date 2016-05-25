@@ -3,7 +3,7 @@ require 'ostruct'
 module Scraping
   module Rules
     class Elements
-      attr_reader :name, :selector, :builder, :options
+      attr_reader :name, :selector, :rule, :options
 
       def initialize(name, selector, options = {})
         @name = name
@@ -23,7 +23,7 @@ module Scraping
 
       def call(scraper, node)
         node.search(selector).map do |item|
-          @rule.call(scraper, item)
+          rule.call(scraper, item)
         end
       end
     end
