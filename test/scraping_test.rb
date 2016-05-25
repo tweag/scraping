@@ -1,4 +1,6 @@
-require 'test_helper'
+require 'minitest'
+require 'scraping'
+require 'minitest/autorun'
 
 class TestScraper
   include Scraping
