@@ -105,6 +105,27 @@ advanced.first_name #=> 'Millard'
 advanced.birthday #=> #<Date: 1800-01-07>
 ```
 
+## HTTP
+
+Scraping is totally agnostic of HTTP, but if you need a suggestion, check out [HTTParty](https://github.com/jnunemaker/httparty).
+
+```ruby
+class HackerNews
+  include HTTParty
+  include Scraping
+
+  base_uri 'https://news.ycombinator.com'
+  elements :stories, '.athing .title > a'
+
+  def self.scrape
+    super get('/').body
+  end
+end
+
+news = HackerNews.scrape
+puts news.stories.inspect
+```
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/promptworks/scraping.
