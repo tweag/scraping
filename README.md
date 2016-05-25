@@ -90,6 +90,10 @@ class Advanced
 
   element :birthday, '.birthday', as: :date
 
+  elements :numbers, 'span' do |node|
+    node.text.to_i * 10
+  end
+
   private
 
   def extract_date(node)
@@ -100,10 +104,13 @@ end
 advanced = Advanced.new(<<-EOF)
   <h1 class="name">Millard Fillmore</h1>
   <h2 class="birthday">7-1-1800</h2>
+  <span>1</span>
+  <span>2</span>
 EOF
 
 advanced.first_name #=> 'Millard'
 advanced.birthday #=> #<Date: 1800-01-07>
+advanced.numbers #=> [10, 20]
 ```
 
 ## HTTP
