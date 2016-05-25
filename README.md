@@ -107,7 +107,7 @@ advanced.birthday #=> #<Date: 1800-01-07>
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/scraping.
+Bug reports and pull requests are welcome on GitHub at https://github.com/promptworks/scraping.
 
 ## License
 
