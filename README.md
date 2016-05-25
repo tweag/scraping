@@ -35,15 +35,16 @@ You can also scrape arrays, objects, and arrays of objects. `elements` and `elem
 ```ruby
 class YouCan
   include Scraping
+
   elements :scrape, '.scrape'
 
-  elements :also_scrape, '.also-scrape li' do
+  sections :also_scrape, '.also-scrape li' do
     element :name, 'a'
     element :link, 'a/@href'
     elements :numbers, 'span'
   end
 
-  elements_of :nested_scrape do
+  section :nested_scrape do
     element :data, '.data'
   end
 end

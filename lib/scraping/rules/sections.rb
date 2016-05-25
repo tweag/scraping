@@ -1,12 +1,12 @@
-require 'scraping/rules/element'
+require 'scraping/rules/section'
 
 module Scraping
   module Rules
-    class Elements < Element
+    class Sections < Section
       attr_reader :multiselector
 
-      def initialize(name, selector, options = {}, &extract)
-        super(name, '.', options, &extract)
+      def initialize(name, selector)
+        super name, '.'
         @multiselector = selector
       end
 

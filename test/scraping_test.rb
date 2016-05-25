@@ -1,33 +1,40 @@
-require 'minitest'
 require 'scraping'
+require 'minitest/spec'
 require 'minitest/autorun'
 
 class TestScraper
   include Scraping
 
   element :name, '.name'
+  element :diddly, '.diddly', as: :diddly
   element :cool_name, '.name' do |node|
     "Cool #{node.text}"
   end
 
-  element :diddly, '.diddly', as: :diddly
+  elements :things, '.things span'
+  elements :diddly_things, '.things span', as: :diddly
+  elements :cool_things, '.things span' do |node|
+    "Cool #{node.text}"
+  end
 
-  elements_of :info do
+  section :info do
+    element :alpha, '.info .alpha'
+    section :nested do
+      element :beta, '.info .beta'
+    end
+  end
+
+  section :scoped_info, '.info' do
     element :alpha, '.alpha'
-
-    elements_of :nested do
+    section :nested do
       element :beta, '.beta'
     end
   end
 
-  elements :things, '.things span'
-  elements :diddly_things, '.things span', as: :diddly
-
-  elements :stuff, '.stuff li' do
+  sections :stuff, '.stuff li' do
     element :title, 'a'
     element :link, 'a/@href'
-
-    elements_of :nested do
+    section :nested do
       element :other, 'span'
     end
   end
@@ -43,58 +50,72 @@ class TestSubclass < TestScraper
   element :name, '.some-other-node'
 end
 
-class ScrapingTest < Minitest::Test
-  def setup
-    @fixture = File.read fixture_file
-    @scraper = TestScraper.scrape @fixture
+class ScrapingTest < Minitest::Spec
+  let(:file) { File.expand_path '../fixture.html', __FILE__ }
+  let(:fixture) { File.read file }
+  let(:scraper) { TestScraper.scrape fixture }
+
+  describe '#element' do
+    it 'can extract text from a single node' do
+      'Ray'.must_equal scraper.name
+    end
+
+    it 'can extract text using a block' do
+      'Cool Ray'.must_equal scraper.cool_name
+    end
+
+    it 'can extract text using an :as extractor' do
+      'Zanediddly'.must_equal scraper.diddly
+    end
   end
 
-  def test_element
-    assert_equal 'Ray', @scraper.name
+  describe '#elements' do
+    it 'extracts an array of text' do
+      ['one', 'two'].must_equal scraper.things
+    end
+
+    it 'extracts an array using a block' do
+      ['Cool one', 'Cool two'].must_equal scraper.cool_things
+    end
+
+    it 'extracts an array using an extractor' do
+      ['onediddly', 'twodiddly'].must_equal scraper.diddly_things
+    end
   end
 
-  def test_element_block
-    assert_equal 'Cool Ray', @scraper.cool_name
+  describe '#section' do
+    it 'extracts a nested node' do
+      'one'.must_equal scraper.info.alpha
+    end
+
+    it 'extracts a nested node with scoping' do
+      'one'.must_equal scraper.scoped_info.alpha
+    end
+
+    it 'extracts a nested node with nesting' do
+      'two'.must_equal scraper.info.nested.beta
+    end
   end
 
-  def test_as_extract
-    assert_equal 'Zanediddly', @scraper.diddly
+  describe '#sections' do
+    it 'extracts an array of structs' do
+      'one'.must_equal scraper.stuff.first.title
+      'yahoo.com'.must_equal scraper.stuff.last.link
+    end
+
+    it 'extracts an array of structs with nesting' do
+      '2'.must_equal scraper.stuff.last.nested.other
+    end
   end
 
-  def test_elements_for
-    assert_equal 'one', @scraper.info.alpha
-  end
+  describe '.inherited' do
+    it 'prevents mutation of the superclass' do
+      '.name'.must_equal TestScraper.rules[:name].selector
+    end
 
-  def test_nested_elements_for
-    assert_equal 'two', @scraper.info.nested.beta
-  end
-
-  def test_elements_simple
-    assert_equal ['one', 'two'], @scraper.things
-  end
-
-  def test_elements_as_extract
-    assert_equal ['onediddly', 'twodiddly'], @scraper.diddly_things
-  end
-
-  def test_elements_composed_of_hashes
-    assert_equal 'one', @scraper.stuff.first.title
-    assert_equal 'yahoo.com', @scraper.stuff.last.link
-  end
-
-  def test_elements_composed_of_hashes_nested
-    assert_equal '2', @scraper.stuff.last.nested.other
-  end
-
-  def test_subclass_does_not_mutate
-    assert_equal '.name', TestScraper.rules[:name].selector
-    assert_equal '.some-other-node', TestSubclass.rules[:name].selector
-    assert_equal '.diddly', TestSubclass.rules[:diddly].selector
-  end
-
-  private
-
-  def fixture_file
-    File.expand_path '../fixture.html', __FILE__
+    it 'keeps the superclasses rules' do
+      '.some-other-node'.must_equal TestSubclass.rules[:name].selector
+      '.diddly'.must_equal TestSubclass.rules[:diddly].selector
+    end
   end
 end

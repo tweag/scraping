@@ -2,8 +2,9 @@ require 'nokogiri'
 require 'scraping/version'
 require 'scraping/dsl'
 require 'scraping/rules/element'
-require 'scraping/rules/elements_of'
 require 'scraping/rules/elements'
+require 'scraping/rules/section'
+require 'scraping/rules/sections'
 
 module Scraping
   def self.included(base)
@@ -38,12 +39,17 @@ module Scraping
       super
     end
 
-    def elements_of(name)
+    def elements(name, *)
       attr_accessor name
       super
     end
 
-    def elements(name, *)
+    def section(name, *)
+      attr_accessor name
+      super
+    end
+
+    def sections(name, *)
       attr_accessor name
       super
     end

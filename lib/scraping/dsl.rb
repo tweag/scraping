@@ -8,12 +8,16 @@ module Scraping
       rules[name] = Rules::Element.new(name, selector, options, &block)
     end
 
-    def elements_of(name, &block)
-      rules[name] = Rules::ElementsOf.new(name).evaluate(&block)
+    def elements(name, selector, options = {}, &block)
+      rules[name] = Rules::Elements.new(name, selector, options, &block)
     end
 
-    def elements(name, selector, options = {}, &block)
-      rules[name] = Rules::Elements.new(name, selector, options).evaluate(&block)
+    def section(name, selector = '.', &block)
+      rules[name] = Rules::Section.new(name, selector).evaluate(&block)
+    end
+
+    def sections(name, selector, &block)
+      rules[name] = Rules::Sections.new(name, selector).evaluate(&block)
     end
   end
 end
